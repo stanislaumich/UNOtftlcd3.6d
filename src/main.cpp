@@ -74,8 +74,6 @@ void myfunc1(void)
  tft.fillScreen(BLACK);
 }
 
-
-
 void printmsg(int row, const char *msg)
 {
     tft.setTextColor(YELLOW, BLACK);
