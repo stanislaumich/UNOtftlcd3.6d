@@ -52,7 +52,38 @@ MCUFRIEND_kbv tft;
 //void setup(void);
 //void loop(void);
 
+String utf8rus(String source)
+{
+  int i,k;
+  String target;
+  unsigned char n;
+  char m[2] = { '0', '\0' };
 
+  k = source.length(); i = 0;
+
+  while (i < k) {
+    n = source[i]; i++;
+
+    if (n >= 0xC0) {
+      switch (n) {
+        case 0xD0: {
+          n = source[i]; i++;
+          if (n == 0x81) { n = 0xA8; break; }
+          if (n >= 0x90 && n <= 0xBF) n = n + 0x30;
+          break;
+        }
+        case 0xD1: {
+          n = source[i]; i++;
+          if (n == 0x91) { n = 0xB8; break; }
+          if (n >= 0x80 && n <= 0x8F) n = n + 0x70;
+          break;
+        }
+      }
+    }
+    m[0] = n; target = target + String(m);
+  }
+return target;
+}
 
 void printmsg(int row, const char *msg)
 {
@@ -143,6 +174,9 @@ void loop(void) {
    tft.fillRect(0,0, 120, 50, BLACK);
    sprintf(cstr, "%03d", i);
    showmsgXY(0, 50, 1, &FreeSevenSegNumFont,GREEN, cstr);
+
+   showmsgXY(0, 100, 1, &FreeSans12pt7b,GREEN, "abcdefghijklmnopqrstuvwxyz");
+   showmsgXY(0, 125, 1, &FreeSans12pt7b,GREEN, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
    //delay(50);
   }
 
