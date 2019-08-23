@@ -64,18 +64,18 @@ String utf8rus(String source)
   while (i < k) {
     n = source[i]; i++;
 
-    if (n >= 0xC0) {
+    if (n >= 0xBF){
       switch (n) {
         case 0xD0: {
           n = source[i]; i++;
           if (n == 0x81) { n = 0xA8; break; }
-          if (n >= 0x90 && n <= 0xBF) n = n + 0x30;
+          if (n >= 0x90 && n <= 0xBF) n = n + 0x2F;
           break;
         }
         case 0xD1: {
           n = source[i]; i++;
-          if (n == 0x91) { n = 0xB8; break; }
-          if (n >= 0x80 && n <= 0x8F) n = n + 0x70;
+          if (n == 0x91) { n = 0xB7; break; }
+          if (n >= 0x80 && n <= 0x8F) n = n + 0x6F;
           break;
         }
       }
@@ -84,7 +84,6 @@ String utf8rus(String source)
   }
 return target;
 }
-
 void printmsg(int row, const char *msg)
 {
     tft.setTextColor(YELLOW, BLACK);
@@ -171,14 +170,16 @@ void loop(void) {
   sprintf(cstr, "%04d", 0);
 
   for (int i=0;i<1000; i++){
-   tft.fillRect(0,0, 120, 50, BLACK);
+   tft.fillRect(0,0, 95, 50, BLACK);
    sprintf(cstr, "%03d", i);
    showmsgXY(0, 50, 1, &FreeSevenSegNumFont,GREEN, cstr);
     tft.setFont();
    tft.print(utf8rus("русский")); 
+   if (i==0){
    showmsgXY(0, 100, 1, &FreeSans12pt7b,GREEN, "abcdefghijklmnopqrstuvwxyz");
    showmsgXY(0, 125, 1, &FreeSans12pt7b,GREEN, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
    //delay(50);
+   }
   }
 
 }
