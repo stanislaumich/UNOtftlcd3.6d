@@ -8,11 +8,18 @@
 // If you are not using a shield,  use a full Adafruit constructor()
 // e.g. Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
+//https://alexgyver.ru/lessons/arduino-libraries/
+
 #define LCD_CS A3 // Chip Select goes to Analog 3
 #define LCD_CD A2 // Command/Data goes to Analog 2
 #define LCD_WR A1 // LCD Write goes to Analog 1
 #define LCD_RD A0 // LCD Read goes to Analog 0
 #define LCD_RESET A4 // Can alternately just connect to Arduino's reset pin
+
+#define PORTRAIT 0
+#define LANDSCAPE 1
+#define PORTRAIT_REV 2
+#define LANDSCAPE_REV 3
 
 // my biggest screen is 320x480
 
@@ -22,6 +29,11 @@
 MCUFRIEND_kbv tft;
 //#include <Adafruit_TFTLCD.h>
 //Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+
+#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSans12pt7b.h>
+#include <Fonts/FreeSerif12pt7b.h>
+#include <FreeDefaultFonts.h>
 
 // Assign human-readable names to some common 16-bit color values:
 #define	BLACK   0x0000
@@ -37,42 +49,10 @@ MCUFRIEND_kbv tft;
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
-void setup(void);
-void loop(void);
-/*unsigned long testFillScreen();
-unsigned long testText();
-unsigned long testLines(uint16_t color);
-unsigned long testFastLines(uint16_t color1, uint16_t color2);
-unsigned long testRects(uint16_t color);
-unsigned long testFilledRects(uint16_t color1, uint16_t color2);
-unsigned long testFilledCircles(uint8_t radius, uint16_t color);
-unsigned long testCircles(uint8_t radius, uint16_t color);
-unsigned long testTriangles();
-unsigned long testFilledTriangles();
-unsigned long testRoundRects();
-unsigned long testFilledRoundRects();
-void progmemPrint(const char *str);
-void progmemPrintln(const char *str);
+//void setup(void);
+//void loop(void);
 
-void runtests(void);
 
-uint16_t g_identifier;
-*/
-
-void setup(void) {
-    Serial.begin(9600);
-    //    tft.reset();                 //hardware reset
-    uint16_t ID = tft.readID(); //
-    Serial.print("ID = 0x");
-    Serial.println(ID, HEX);
-    tft.begin(ID);  // my is 9327
-    tft.fillScreen(BLACK);
-}
-
-void myfunc1(void)
-{
- tft.fillScreen(BLACK);
-}
 
 void printmsg(int row, const char *msg)
 {
@@ -81,10 +61,90 @@ void printmsg(int row, const char *msg)
     tft.println(msg);
 }
 
-void loop(void) {
-    myfunc1();
-    tft.fillScreen(BLACK);
+void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg)
+{
+    int16_t x1, y1;
+    uint16_t wid, ht;
+    //tft.drawFastHLine(0, y, tft.width(), WHITE);
+    tft.setFont(f);
+    tft.setCursor(x, y);
+    tft.setTextColor(col);
+    tft.setTextSize(sz);
+    tft.print(msg);
     delay(1000);
-    
+}
+
+void show(const char *msg){
+ tft.setFont(&FreeSevenSegNumFont);
+ tft.setCursor(0, 50);
+ tft.setTextSize(1);
+ tft.setTextColor(GREEN);
+ tft.print(msg);
+}
+
+void myfunc3 (void){
+ //showmsgXY(0, 50, 1, &FreeSevenSegNumFont, "0:1-2+3=4ABC567890");
+ //showmsgXY(0, 40, 2, &FreeSevenSegNumFont, "01234567890");
+}
+
+void myfunc2(void)
+{
+    //showmsgXY(20, 10, 1, NULL, "System x1");
+    //showmsgXY(20, 24, 2, NULL, "System x2");
+    //showmsgXY(20, 60, 1, &FreeSans9pt7b, "FreeSans9pt7b");
+    //showmsgXY(20, 80, 1, &FreeSans12pt7b, "FreeSans12pt7b");
+    //showmsgXY(20, 100, 1, &FreeSerif12pt7b, "FreeSerif12pt7b");
+    //showmsgXY(20, 120, 1, &FreeSmallFont, "FreeSmallFont");
+    //showmsgXY(5, 180, 1, &FreeSevenSegNumFont, "01234"); 
+
+}
+
+void myfunc1(void)
+{
+ //tft.setTextColor(GREEN);
+ //tft.setCursor(0, 0);
+ //tft.println(123.45);
+
+ tft.setRotation(LANDSCAPE);
+ tft.setTextSize(2);  
+ tft.fillScreen(BLACK);
+ printmsg(1, "HELLO!! its a vrvbncvbnbvbnvbnvnv ncv bn cvbn cvb n cvbn cvbn cvbn cvbn cvbncvb n cvbn cv bn cvbn cvb ncv bn cv bnc vb");
+}
+
+
+
+int i=0;
+void setup(void) {
+    Serial.begin(9600);
+    //    tft.reset();                 //hardware reset
+    uint16_t ID = tft.readID(); //
+    Serial.print("ID = 0x");
+    Serial.println(ID, HEX);
+    tft.begin(ID);  // my is 9327
+    tft.setRotation(LANDSCAPE);
+    tft.fillScreen(BLACK);
+    //show("5");
+}
+char cstr[16];
+
+
+void loop(void) {
+    //myfunc1();
+    //delay(1000);
+    //tft.fillScreen(BLACK);delay(100);
+    //tft.fillRect(0,0, 400, 50, RED);delay(100);
+    //delay(1000);
+    //myfunc3();
+    //delay(10000);
+  
+  sprintf(cstr, "%04d", 0);
+
+  for (int i=0;i<1000; i++){
+   tft.fillRect(0,0, 120, 50, BLACK);
+   sprintf(cstr, "%03d", i);
+   showmsgXY(0, 50, 1, &FreeSevenSegNumFont,GREEN, cstr);
+   //delay(50);
+  }
+
 }
 
