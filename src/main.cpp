@@ -167,14 +167,15 @@ void loop(void) {
     //myfunc3();
     //delay(10000);
   
-  sprintf(cstr, "%04d", 0);
+  //sprintf(cstr, "%04d", 0);
 
   for (int i=0;i<1000; i++){
    tft.fillRect(0,0, 95, 50, BLACK);
    sprintf(cstr, "%03d", i);
    showmsgXY(0, 50, 1, &FreeSevenSegNumFont,GREEN, cstr);
-    tft.setFont();
-   tft.print(utf8rus("русский")); 
+   tft.setFont();
+   tft.setTextSize(1);
+   tft.print(utf8rus("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЪЫЭЮЯ")); 
    if (i==0){
    showmsgXY(0, 100, 1, &FreeSans12pt7b,GREEN, "abcdefghijklmnopqrstuvwxyz");
    showmsgXY(0, 125, 1, &FreeSans12pt7b,GREEN, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
