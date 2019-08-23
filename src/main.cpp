@@ -174,7 +174,8 @@ void loop(void) {
    tft.fillRect(0,0, 120, 50, BLACK);
    sprintf(cstr, "%03d", i);
    showmsgXY(0, 50, 1, &FreeSevenSegNumFont,GREEN, cstr);
-
+    tft.setFont();
+   tft.print(utf8rus("русский")); 
    showmsgXY(0, 100, 1, &FreeSans12pt7b,GREEN, "abcdefghijklmnopqrstuvwxyz");
    showmsgXY(0, 125, 1, &FreeSans12pt7b,GREEN, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
    //delay(50);
