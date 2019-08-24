@@ -151,9 +151,11 @@ void setup(void) {
     Serial.print("ID = 0x");
     Serial.println(ID, HEX);
     tft.begin(ID);  // my is 9327
+    tft.cp437(true);
     tft.setRotation(LANDSCAPE);
     tft.fillScreen(BLACK);
-    //show("5");
+    tft.setFont();
+    tft.setTextSize(2);
 }
 char cstr[16];
 
@@ -166,9 +168,23 @@ void loop(void) {
     //delay(1000);
     //myfunc3();
     //delay(10000);
-  
+    int maxscroll=15;
+  if (Serial.available() > 0) {  //если есть доступные данные
+        // считываем байт
+        String s=Serial.readString();
+        if (tft.getCursorY()>200){
+          for (uint16_t i = 0; i < maxscroll; i++) {
+   tft.vertScroll(0, maxscroll, i);
+   delay(10);
+}
+        }
+        tft.print(s);
+        //tft.print(utf8rus(s));
+        // печатаем то, что получили
+        
+    }
   //sprintf(cstr, "%04d", 0);
-
+ /*  хороший рабочий кусок
   for (int i=0;i<1000; i++){
    tft.fillRect(0,0, 95, 50, BLACK);
    sprintf(cstr, "%03d", i);
@@ -182,6 +198,6 @@ void loop(void) {
    //delay(50);
    }
   }
-
+*/
 }
 
