@@ -168,7 +168,7 @@ void loop(void) {
     //delay(1000);
     //myfunc3();
     //delay(10000);
-    int maxscroll=15;
+  /*  int maxscroll=15;
   if (Serial.available() > 0) {  //если есть доступные данные
         // считываем байт
         String s=Serial.readString();
@@ -183,8 +183,9 @@ void loop(void) {
         // печатаем то, что получили
         
     }
+    */
   //sprintf(cstr, "%04d", 0);
- /*  хороший рабочий кусок
+   //хороший рабочий кусок
   for (int i=0;i<1000; i++){
    tft.fillRect(0,0, 95, 50, BLACK);
    sprintf(cstr, "%03d", i);
@@ -198,6 +199,6 @@ void loop(void) {
    //delay(50);
    }
   }
-*/
+
 }
 
