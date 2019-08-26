@@ -522,3 +522,23 @@ unsigned long testFilledRoundRects() {
     delay(2000);
     tft.invertDisplay(false);
   */  
+
+  //myfunc1();
+    //delay(1000);
+    //tft.fillScreen(BLACK);delay(100);
+    //tft.fillRect(0,0, 400, 50, RED);delay(100);
+    //delay(1000);
+    //myfunc3();
+    //delay(10000);
+  /*  int maxscroll=15;*/
+
+     //tft.println(utf8rus("ДОКТОР БОРОДАТЫЙ ПО ЛЕСУ ИДЁТ,"));
+   //tft.println();
+  // tft.println(utf8rus("ШИШКИ СОБИРАЕТ, объяснительную пишет"));
+   //if (i==0){
+   //showmsgXY(0, 100, 1, &FreeSans12pt7b,GREEN, "abcdefghijklmnopqrstuvwxyz");
+   //showmsgXY(0, 125, 1, &FreeSans12pt7b,GREEN, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+   //delay(50);
+   //}
+
+   

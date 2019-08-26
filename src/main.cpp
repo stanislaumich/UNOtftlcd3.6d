@@ -30,15 +30,16 @@
 */
 // my biggest screen is 320x480
 
-#include <SPI.h>          // f.k. for Arduino-1.5.2
+//#include <SPI.h>          // f.k. for Arduino-1.5.2
 #include "Adafruit_GFX.h"// Hardware-specific library
 #include <MCUFRIEND_kbv.h>
-#include <SD.h>
+#include "GyverUART.h";
+//#include <SD.h>
 MCUFRIEND_kbv tft;
 //#include <Adafruit_TFTLCD.h>
 //Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
-File myFile;
+//File myFile;
 
 #include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/FreeSans12pt7b.h>
@@ -150,7 +151,7 @@ void myfunc1(void)
  tft.fillScreen(BLACK);
  printmsg(1, "HELLO!! its a vrvbncvbnbvbnvbnvnv ncv bn cvbn cvb n cvbn cvbn cvbn cvbn cvbncvb n cvbn cv bn cvbn cvb ncv bn cv bnc vb");
 }
-
+/*
 void printDirectory(File dir, int numTabs) {
   // Begin at the start of the directory
   dir.rewindDirectory();
@@ -159,34 +160,37 @@ void printDirectory(File dir, int numTabs) {
      File entry =  dir.openNextFile();
      if (! entry) {
        // no more files
-       //Serial.println("**nomorefiles**");
+       //uart.println("**nomorefiles**");
        break;
      }
      for (uint8_t i=0; i<numTabs; i++) {
-       Serial.print('\t');   // we'll have a nice indentation
+       uart.print('\t');   // we'll have a nice indentation
      }
      // Print the 8.3 name
-     Serial.print(entry.name());
+     uart.print(entry.name());
      // Recurse for directories, otherwise print the file size
      if (entry.isDirectory()) {
-       Serial.println("/");
+       uart.println("/");
        printDirectory(entry, numTabs+1);
      } else {
        // files have sizes, directories do not
-       Serial.print("\t\t");
-       Serial.println(entry.size(), DEC);
+       uart.print("\t\t");
+       uart.println(entry.size(), DEC);
      }
      entry.close();
    }
 }
-
+*/
 int i=0;
+int tw;
+int th;
 void setup(void) {
-    Serial.begin(74880);
+    //uart.begin(74880);
+    uartBegin(74880); 
     //    tft.reset();                 //hardware reset
     uint16_t ID = tft.readID(); //
-    Serial.print("ID = 0x");
-    Serial.println(ID, HEX);
+    //uartPrint("ID =");
+    uartPrintln(ID, HEX);
     tft.begin(ID);  // my is 9327
     //tft.cp437(true);
     tft.setRotation(LANDSCAPE);
@@ -194,90 +198,56 @@ void setup(void) {
     tft.setFont();
     tft.setTextSize(2);
     i=0;
-    if (!SD.begin(10)) {
-    Serial.println("initialization failed!");
+    //if (!SD.begin(10)) {
+    //uart.println("initialization failed!");
     //while (1);
-  }
-  Serial.println("initialization done.");
-/**/
-File root;
-root = SD.open("/");
-  
-  printDirectory(root, 0);
-  
-  Serial.println("done!");
-
- myFile = SD.open("test.txt", FILE_WRITE);
- if (myFile) {
-    Serial.print("Writing to test.txt...");
-    myFile.println("testing 1, 2, 3.");
-    // close the file:
-    myFile.close();
-    Serial.println("done.");
-  } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
-  }
-  // re-open the file for reading:
-  myFile = SD.open("test.txt");
-  if (myFile) {
-    Serial.println("test.txt:");
-
-    // read from the file until there's nothing else in it:
-    while (myFile.available()) {
-      Serial.write(myFile.read());
-    }
-    // close the file:
-    myFile.close();
-  } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
-  }
-
-
+  ///}
+  uartPrintln("initialization done.");
 /**/
 
+ tw = tft.width();
+ th = tft.height();
+ uartPrintln(tw);
+ uartPrintln(th);
+ 
+/**/
+i=1;
 }
 
 
 char cstr[16];
+char cstrp[16];
 String s="";
 
 void loop(void) {
-    //myfunc1();
-    //delay(1000);
-    //tft.fillScreen(BLACK);delay(100);
-    //tft.fillRect(0,0, 400, 50, RED);delay(100);
-    //delay(1000);
-    //myfunc3();
-    //delay(10000);
-  /*  int maxscroll=15;*/
-  if (Serial.available() > 0) {  //если есть доступные данные
-        // считываем байт
-        s=Serial.readString();     
+    
+  if (uartAvailable() > 0) {  //если есть доступные данные
+        // считываем строку
+        s=uartReadString();     
     }
    
   //sprintf(cstr, "%04d", 0);
    //хороший рабочий кусок
   
    tft.fillRect(0,0, 95, 50, BLACK);
+
+   tft.drawFastHLine(0,0,399,RED) ;
+   tft.drawFastHLine(0,239,399,RED) ;
+   tft.drawFastVLine(0,0,239,RED) ;
+   tft.drawFastVLine(399,0,239,RED) ;
+
    sprintf(cstr, "%03d", i);
-   showmsgXY(0, 50, 1, &FreeSevenSegNumFont,GREEN, cstr);
+   //sprintf(cstrp, "%03d", i-1);
+   //showmsgXY(1, 51, 1, &FreeSevenSegNumFont,BLACK, cstrp);
+   showmsgXY(1, 51, 1, &FreeSevenSegNumFont,GREEN, cstr);
    tft.setFont();
    tft.setTextSize(2);
    //tft.print(utf8rus("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЪЫЭЮЯ"));
    tft.println();  
-   tft.fillRect(0,51, 400, 25, BLACK);
+   tft.fillRect(1,51, 398, 26, BLACK);
    tft.println(s);
    i++;
-   //tft.println(utf8rus("ДОКТОР БОРОДАТЫЙ ПО ЛЕСУ ИДЁТ,"));
-   //tft.println();
-  // tft.println(utf8rus("ШИШКИ СОБИРАЕТ, объяснительную пишет"));
-   //if (i==0){
-   //showmsgXY(0, 100, 1, &FreeSans12pt7b,GREEN, "abcdefghijklmnopqrstuvwxyz");
-   //showmsgXY(0, 125, 1, &FreeSans12pt7b,GREEN, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-   //delay(50);
-   //}
+
    if(i==1000) i=0;
    
 
