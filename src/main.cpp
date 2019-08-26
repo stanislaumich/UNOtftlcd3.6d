@@ -95,13 +95,14 @@ String utf8rus(String source)
   }
 return target;
 }
+/*
 void printmsg(int row, const char *msg)
 {
     tft.setTextColor(YELLOW, BLACK);
     tft.setCursor(0, row);
     tft.println(msg);
 }
-
+*/
 void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg)
 {
     int16_t x1, y1;
@@ -114,7 +115,7 @@ void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg
     tft.print(msg);
     delay(1000);
 }
-
+/*
 void show(const char *msg){
  tft.setFont(&FreeSevenSegNumFont);
  tft.setCursor(0, 50);
@@ -122,12 +123,12 @@ void show(const char *msg){
  tft.setTextColor(GREEN);
  tft.print(msg);
 }
-
+*//*
 void myfunc3 (void){
  //showmsgXY(0, 50, 1, &FreeSevenSegNumFont, "0:1-2+3=4ABC567890");
  //showmsgXY(0, 40, 2, &FreeSevenSegNumFont, "01234567890");
 }
-
+*//*
 void myfunc2(void)
 {
     //showmsgXY(20, 10, 1, NULL, "System x1");
@@ -139,18 +140,8 @@ void myfunc2(void)
     //showmsgXY(5, 180, 1, &FreeSevenSegNumFont, "01234"); 
 
 }
+*/
 
-void myfunc1(void)
-{
- //tft.setTextColor(GREEN);
- //tft.setCursor(0, 0);
- //tft.println(123.45);
-
- tft.setRotation(LANDSCAPE);
- tft.setTextSize(2);  
- tft.fillScreen(BLACK);
- printmsg(1, "HELLO!! its a vrvbncvbnbvbnvbnvnv ncv bn cvbn cvb n cvbn cvbn cvbn cvbn cvbncvb n cvbn cv bn cvbn cvb ncv bn cv bnc vb");
-}
 /*
 void printDirectory(File dir, int numTabs) {
   // Begin at the start of the directory
@@ -189,7 +180,6 @@ void setup(void) {
     uartBegin(74880); 
     //    tft.reset();                 //hardware reset
     uint16_t ID = tft.readID(); //
-    //uartPrint("ID =");
     uartPrintln(ID, HEX);
     tft.begin(ID);  // my is 9327
     //tft.cp437(true);
@@ -198,18 +188,15 @@ void setup(void) {
     tft.setFont();
     tft.setTextSize(2);
     i=0;
-    //if (!SD.begin(10)) {
-    //uart.println("initialization failed!");
-    //while (1);
-  ///}
-  uartPrintln("initialization done.");
-/**/
-
- tw = tft.width();
- th = tft.height();
+    
+// tw = tft.width();
+// th = tft.height();
  uartPrintln(tw);
  uartPrintln(th);
- 
+ tft.drawFastHLine(0,0,399,RED) ;
+ tft.drawFastHLine(0,239,399,RED) ;
+ tft.drawFastVLine(0,0,239,RED) ;
+ tft.drawFastVLine(399,0,239,RED) ;
 /**/
 i=1;
 }
@@ -217,39 +204,62 @@ i=1;
 
 char cstr[16];
 char cstrp[16];
-String s="";
-
+String inString="";
+String g="";
 void loop(void) {
     
+  
+  /* 
+   sprintf(cstr, "%03d", i);
+   tft.fillRect(1,1, 95, 50, BLACK);//190
+   showmsgXY(1, 51, 1, &FreeSevenSegNumFont,GREEN, cstr);
+   sprintf(cstr, "%03d", 1000-i);
+   tft.fillRect(96,1, 95, 50, BLACK);
+   showmsgXY(96, 51, 1, &FreeSevenSegNumFont,YELLOW, cstr);
+   */
+/*
   if (uartAvailable() > 0) {  //если есть доступные данные
         // считываем строку
-        s=uartReadString();     
-    }
+        s=uartReadString();
+        tft.setFont();
+        tft.setTextSize(2);
+        tft.println();
+        tft.fillRect(1,51, 398, 26, BLACK);
+        //tft.print(" ");
+        tft.println(utf8rus(s));
+      }
+      */
+  while (uartAvailable() > 0) {
+  char inChar = uartRead();
+    inString += inChar;
+
+  if (inChar == '\n') {
+    //uartPrintln(inString);
+    switch (inString.charAt(0))
+{
+case '1':
+    g=inString.substring(2,16);
+    g.toCharArray(cstr, g.length());
+    tft.fillRect(1,1, 95, 50, BLACK);//190
+    showmsgXY(1, 51, 1, &FreeSevenSegNumFont,GREEN, cstr);
+  break;
+case '2':
+    g=inString.substring(2,16);
+    g.toCharArray(cstr, g.length());
+    tft.fillRect(96,1, 95, 50, BLACK);
+    showmsgXY(96, 51, 1, &FreeSevenSegNumFont,YELLOW, cstr);
+default:
+  break;
+}
+ inString = "";
+}
+}
+
+
+
+
    
-  //sprintf(cstr, "%04d", 0);
-   //хороший рабочий кусок
-  
-   tft.fillRect(0,0, 95, 50, BLACK);
-
-   tft.drawFastHLine(0,0,399,RED) ;
-   tft.drawFastHLine(0,239,399,RED) ;
-   tft.drawFastVLine(0,0,239,RED) ;
-   tft.drawFastVLine(399,0,239,RED) ;
-
-   sprintf(cstr, "%03d", i);
-   //sprintf(cstrp, "%03d", i-1);
-   //showmsgXY(1, 51, 1, &FreeSevenSegNumFont,BLACK, cstrp);
-   showmsgXY(1, 51, 1, &FreeSevenSegNumFont,GREEN, cstr);
-   tft.setFont();
-   tft.setTextSize(2);
-   //tft.print(utf8rus("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЪЫЭЮЯ"));
-   tft.println();  
-   tft.fillRect(1,51, 398, 26, BLACK);
-   tft.println(s);
-   i++;
-
-   if(i==1000) i=0;
-   
-
+   //i++;
+   //if(i==1000) i=0;
 }
 

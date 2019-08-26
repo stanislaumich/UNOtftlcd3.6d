@@ -541,4 +541,14 @@ unsigned long testFilledRoundRects() {
    //delay(50);
    //}
 
+      //tft.setFont();
+   //tft.setTextSize(2);
+   //tft.print(utf8rus("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЪЫЭЮЯ"));
+   //tft.println();  
+   //tft.fillRect(1,51, 398, 26, BLACK);
+   //tft.println(s);
+
+      //sprintf(cstrp, "%03d", i-1);
+   //showmsgXY(1, 51, 1, &FreeSevenSegNumFont,BLACK, cstrp);
+
    
