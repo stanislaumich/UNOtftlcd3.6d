@@ -211,7 +211,13 @@ case '5':
     g.toCharArray(cstr, g.length());
     tft.fillRect(1,99, 398, 22, BLACK);
     showmsgXY(2, 119, 1,&FreeSans12pt7b,GREEN, cstr);
-  break;          
+  break; 
+case '6':
+    g=inString.substring(2,80);
+    g.toCharArray(cstr, g.length());
+    tft.fillRect(1,119, 398, 22, BLACK);
+    showmsgXY(2, 139, 1,&FreeSans12pt7b,GREEN, cstr);
+  break;            
 default:
   break;
 }
