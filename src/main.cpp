@@ -95,104 +95,43 @@ String utf8rus(String source)
 return target;
 }
 */
-/*------------------------------------------------------*/
-/*
-void printNumI( long num, int length, char filler)
-{
-        static	char buf[25];
-        static	char st[27];
-        
-	boolean neg  = false;
-	int c = 0, f = 0;
 
-	if( num == 0 ) {
-	  if( length != 0 ) {
-            for( c = 0; c < (length -1); c++)  st[c] = filler;
-	    st[c]  = 48;
-     	    st[c+1]=  0;
-	    }
-	    else {
-	      st[0] = 48;
-	      st[1] =  0;
-	      }
-          }
-  	  else {
-    	    if( num < 0 ) {
-		neg = true;
-		num = -num;
-		}
-  	    while( num > 0 ) {
-		buf[c] = 48 + (num % 10);
-		c++;
-		num = (num -(num % 10))/10;
-		}
-	    buf[c] = 0;
-	    if( neg ) {
-		st[0] = 45;
-		}
-	    if( length > (c + neg) ) {
-		for( int i = 0; i < (length -c -neg); i++) {
- 		  st[i+neg] = filler;
-		  f++;
-		  }
-		}
-	    for( int i = 0; i < c; i++) { st[i+neg+f] = buf[c-i-1]; }
-	    st[c+neg+f] = 0;
-   	    }
-  tft.println( st );
-}
-*/
 void refresh(int value, byte ms_delay)
 {
   static float ltx = 0;    // Saved x coord of bottom of needle
   static uint16_t osx = 160, osy = 160; // Saved x & y coords0
   static int old_analog =  -999; // Value last displayed
+   
+    float sdeg = map(old_analog, -10, 110, -150, -30); 
 
-  //if (value < -10) value = -10; // Limit value to emulate needle end stops
-  //if (value > 110) value = 110;
-
-  // Move the needle util new value reached
-  //while (!(value == old_analog)) {
-   // if (old_analog < value) old_analog++;
-    //else old_analog--;
-    
-    //if (ms_delay == 0) old_analog = value; // Update immediately id delay is 0
-    
-    float sdeg = map(old_analog, -10, 110, -150, -30); // Map value to angle 
-    // Calcualte tip of needle coords
     float sx = cos(sdeg * 0.0174532925);
     float sy = sin(sdeg * 0.0174532925);
 
-    // Calculate x delta of needle start (does not start at pivot point)
     float tx = tan((sdeg+90) * 0.0174532925);
-    
-    // Erase old needle image
-    //tft.drawLine(160 + (27 * ltx) - 1, 187 - 27, osx - 1, osy, WHITE);
-    //tft.drawLine(160 + (27 * ltx), 187 - 27, osx, osy, WHITE);
-    //tft.drawLine(160 + (27 * ltx) + 1, 187 - 27, osx + 1, osy, WHITE);
-    
-    //tft.fillRect( 128, 100, 68, 28, WHITE);
-    //tft.setTextColor(RED);
-    //tft.setTextSize(4);  
-    //tft.setCursor(128, 100);  printNumI( old_analog, 3, '.');
-    
-    // Store new needle end coords for next erase
+
     ltx = tx;
     osx = (sx * 130) + 160;
     osy = (sy * 130) + 187;
-    
-    // Draw the needle in the new postion, magenta makes needle a bit bolder
-    // draws 3 lines to thicken needle
+
+    tft.drawLine(160 + (27 * ltx) - 1, 187 - 27, osx - 1, osy, BLACK);
+    tft.drawLine(160 + (27 * ltx), 187 - 27, osx, osy, BLACK);
+    tft.drawLine(160 + (27 * ltx) + 1, 187 - 27, osx + 1, osy, BLACK);
+
+     sdeg = map(value, -10, 110, -150, -30); 
+
+     sx = cos(sdeg * 0.0174532925);
+     sy = sin(sdeg * 0.0174532925);
+
+     tx = tan((sdeg+90) * 0.0174532925);
+
+    ltx = tx;
+    osx = (sx * 130) + 160;
+    osy = (sy * 130) + 187;
+
     tft.drawLine(160 + (27 * ltx) - 1, 187 - 27, osx - 1, osy, RED);
     tft.drawLine(160 + (27 * ltx), 187 - 27, osx, osy, MAGENTA);
     tft.drawLine(160 + (27 * ltx) + 1, 187 - 27, osx + 1, osy, RED);
-    //old_analog=value;
-    // Slow needle down slightly as it approaches new postion
-    //if (abs(old_analog - value) < 10) ms_delay += ms_delay / 5;
-    
-    // Wait before next update
-    //delay(ms_delay);
-  //}
+    old_analog=value;
 }
 
 void analogMeter()
@@ -271,10 +210,6 @@ void analogMeter()
     tft.println(labels[labp]);
     }
   }  
-  //tft.setCursor( 270, 140);
-  //tft.println(labels[5]);
-  
-  //refresh(0,0); // Put meter needle at 0
 }
 /*------------------------------------------------------*/
 void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg)
@@ -288,33 +223,6 @@ void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg
     tft.setTextSize(sz);
     tft.print(msg);
 }
-
-long readVcc() {
-  // Read 1.1V reference against AVcc
-  // set the reference to Vcc and the measurement to the internal 1.1V reference
-  #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-    ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
-  #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
-    ADMUX = _BV(MUX5) | _BV(MUX0);
-  #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
-    ADMUX = _BV(MUX3) | _BV(MUX2);
-  #else
-    ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
-  #endif  
-
-  delay(75); // Wait for Vref to settle
-  ADCSRA |= _BV(ADSC); // Start conversion
-  while (bit_is_set(ADCSRA,ADSC)); // measuring
-
-  uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH  
-  uint8_t high = ADCH; // unlocks both
-
-  long result = (high<<8) | low;
-
-  result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000
-  return result; // Vcc in millivolts
-}
-
 
 int i=0;
 int tw;
@@ -406,7 +314,7 @@ case '0':
     g=inString.substring(2,80);
     speed=g.toInt();
     
-    analogMeter();
+    //analogMeter();
     refresh(speed,0);
 
     //tft.writeLine(199,239,prevx, prevy,  BLACK);
