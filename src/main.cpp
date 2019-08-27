@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "LowPower.h"
 
 // All the mcufriend.com UNO shields have the same pinout.
 // i.e. control pins A0-A4.  Data D2-D9.  microSD D10-D13.
@@ -95,14 +96,7 @@ String utf8rus(String source)
   }
 return target;
 }
-/*
-void printmsg(int row, const char *msg)
-{
-    tft.setTextColor(YELLOW, BLACK);
-    tft.setCursor(0, row);
-    tft.println(msg);
-}
-*/
+
 void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg)
 {
     int16_t x1, y1;
@@ -113,71 +107,41 @@ void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg
     tft.setTextColor(col);
     tft.setTextSize(sz);
     tft.print(msg);
-    delay(1000);
 }
-/*
-void show(const char *msg){
- tft.setFont(&FreeSevenSegNumFont);
- tft.setCursor(0, 50);
- tft.setTextSize(1);
- tft.setTextColor(GREEN);
- tft.print(msg);
-}
-*//*
-void myfunc3 (void){
- //showmsgXY(0, 50, 1, &FreeSevenSegNumFont, "0:1-2+3=4ABC567890");
- //showmsgXY(0, 40, 2, &FreeSevenSegNumFont, "01234567890");
-}
-*//*
-void myfunc2(void)
-{
-    //showmsgXY(20, 10, 1, NULL, "System x1");
-    //showmsgXY(20, 24, 2, NULL, "System x2");
-    //showmsgXY(20, 60, 1, &FreeSans9pt7b, "FreeSans9pt7b");
-    //showmsgXY(20, 80, 1, &FreeSans12pt7b, "FreeSans12pt7b");
-    //showmsgXY(20, 100, 1, &FreeSerif12pt7b, "FreeSerif12pt7b");
-    //showmsgXY(20, 120, 1, &FreeSmallFont, "FreeSmallFont");
-    //showmsgXY(5, 180, 1, &FreeSevenSegNumFont, "01234"); 
 
-}
-*/
+long readVcc() {
+  // Read 1.1V reference against AVcc
+  // set the reference to Vcc and the measurement to the internal 1.1V reference
+  #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+    ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
+    ADMUX = _BV(MUX5) | _BV(MUX0);
+  #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+    ADMUX = _BV(MUX3) | _BV(MUX2);
+  #else
+    ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  #endif  
 
-/*
-void printDirectory(File dir, int numTabs) {
-  // Begin at the start of the directory
-  dir.rewindDirectory();
-  
-  while(true) {
-     File entry =  dir.openNextFile();
-     if (! entry) {
-       // no more files
-       //uart.println("**nomorefiles**");
-       break;
-     }
-     for (uint8_t i=0; i<numTabs; i++) {
-       uart.print('\t');   // we'll have a nice indentation
-     }
-     // Print the 8.3 name
-     uart.print(entry.name());
-     // Recurse for directories, otherwise print the file size
-     if (entry.isDirectory()) {
-       uart.println("/");
-       printDirectory(entry, numTabs+1);
-     } else {
-       // files have sizes, directories do not
-       uart.print("\t\t");
-       uart.println(entry.size(), DEC);
-     }
-     entry.close();
-   }
+  delay(75); // Wait for Vref to settle
+  ADCSRA |= _BV(ADSC); // Start conversion
+  while (bit_is_set(ADCSRA,ADSC)); // measuring
+
+  uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH  
+  uint8_t high = ADCH; // unlocks both
+
+  long result = (high<<8) | low;
+
+  result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000
+  return result; // Vcc in millivolts
 }
-*/
+
+
 int i=0;
 int tw;
 int th;
 void setup(void) {
     //uart.begin(74880);
-    uartBegin(74880); 
+    uartBegin(); 
     //    tft.reset();                 //hardware reset
     uint16_t ID = tft.readID(); //
     uartPrintln(ID, HEX);
@@ -202,33 +166,14 @@ i=1;
 }
 
 
-char cstr[16];
-char cstrp[16];
+char cstr[80];
+//char cstrp[16];
 String inString="";
 String g="";
 void loop(void) {
     
   
-  /* 
-   sprintf(cstr, "%03d", i);
-   tft.fillRect(1,1, 95, 50, BLACK);//190
-   showmsgXY(1, 51, 1, &FreeSevenSegNumFont,GREEN, cstr);
-   sprintf(cstr, "%03d", 1000-i);
-   tft.fillRect(96,1, 95, 50, BLACK);
-   showmsgXY(96, 51, 1, &FreeSevenSegNumFont,YELLOW, cstr);
-   */
-/*
-  if (uartAvailable() > 0) {  //если есть доступные данные
-        // считываем строку
-        s=uartReadString();
-        tft.setFont();
-        tft.setTextSize(2);
-        tft.println();
-        tft.fillRect(1,51, 398, 26, BLACK);
-        //tft.print(" ");
-        tft.println(utf8rus(s));
-      }
-      */
+
   while (uartAvailable() > 0) {
   char inChar = uartRead();
     inString += inChar;
@@ -248,18 +193,33 @@ case '2':
     g.toCharArray(cstr, g.length());
     tft.fillRect(96,1, 95, 50, BLACK);
     showmsgXY(96, 51, 1, &FreeSevenSegNumFont,YELLOW, cstr);
+  break;
+case '3':
+    g=inString.substring(2,16);
+    g.toCharArray(cstr, g.length());
+    tft.fillRect(1,52, 95, 50, BLACK);
+    showmsgXY(1, 101, 1, &FreeSevenSegNumFont,RED, cstr);
+  break;
+case '4':
+    g=inString.substring(2,16);
+    g.toCharArray(cstr, g.length());
+    tft.fillRect(96,52, 95, 50, BLACK);
+    showmsgXY(96, 101, 1, &FreeSevenSegNumFont,CYAN, cstr);
+  break;
+case '5':
+    g=inString.substring(2,80);
+    g.toCharArray(cstr, g.length());
+    tft.fillRect(1,99, 398, 22, BLACK);
+    showmsgXY(2, 119, 1,&FreeSans12pt7b,GREEN, cstr);
+  break;          
 default:
   break;
 }
  inString = "";
+ //uartPrintln(readVcc());
 }
 }
 
-
-
-
-   
-   //i++;
-   //if(i==1000) i=0;
+//LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);  
 }
 
