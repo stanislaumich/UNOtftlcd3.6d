@@ -1,5 +1,13 @@
 #include <Arduino.h>
 #include "LowPower.h"
+#include "Adafruit_GFX.h"// Hardware-specific library
+#include <MCUFRIEND_kbv.h>
+#include "GyverUART.h";
+#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSans12pt7b.h>
+#include <Fonts/FreeSerif12pt7b.h>
+#include <FreeDefaultFonts.h>
+
 
 // All the mcufriend.com UNO shields have the same pinout.
 // i.e. control pins A0-A4.  Data D2-D9.  microSD D10-D13.
@@ -21,20 +29,10 @@
 #define LANDSCAPE 1
 #define PORTRAIT_REV 2
 #define LANDSCAPE_REV 3
-/*
 
-10 ss
-11 di
-12 do
-13 sck
-
-*/
-// my biggest screen is 320x480
 
 //#include <SPI.h>          // f.k. for Arduino-1.5.2
-#include "Adafruit_GFX.h"// Hardware-specific library
-#include <MCUFRIEND_kbv.h>
-#include "GyverUART.h";
+
 //#include <SD.h>
 MCUFRIEND_kbv tft;
 //#include <Adafruit_TFTLCD.h>
@@ -42,10 +40,7 @@ MCUFRIEND_kbv tft;
 
 //File myFile;
 
-#include <Fonts/FreeSans9pt7b.h>
-#include <Fonts/FreeSans12pt7b.h>
-#include <Fonts/FreeSerif12pt7b.h>
-#include <FreeDefaultFonts.h>
+
 
 // Assign human-readable names to some common 16-bit color values:
 #define	BLACK   0x0000
@@ -56,6 +51,9 @@ MCUFRIEND_kbv tft;
 #define MAGENTA 0xF81F
 #define YELLOW  0xFFE0
 #define WHITE   0xFFFF
+#define LIGHTGREY   0xC618      /* 192, 192, 192 */
+#define DARKGREY    0x7BEF      /* 128, 128, 128 */
+#define ORANGE  0xFD20
 
 #ifndef min
 #define min(a, b) (((a) < (b)) ? (a) : (b))
@@ -63,7 +61,7 @@ MCUFRIEND_kbv tft;
 
 //void setup(void);
 //void loop(void);
-
+/*
 String utf8rus(String source)
 {
   int i,k;
@@ -96,7 +94,189 @@ String utf8rus(String source)
   }
 return target;
 }
+*/
+/*------------------------------------------------------*/
+/*
+void printNumI( long num, int length, char filler)
+{
+        static	char buf[25];
+        static	char st[27];
+        
+	boolean neg  = false;
+	int c = 0, f = 0;
 
+	if( num == 0 ) {
+	  if( length != 0 ) {
+            for( c = 0; c < (length -1); c++)  st[c] = filler;
+	    st[c]  = 48;
+     	    st[c+1]=  0;
+	    }
+	    else {
+	      st[0] = 48;
+	      st[1] =  0;
+	      }
+          }
+  	  else {
+    	    if( num < 0 ) {
+		neg = true;
+		num = -num;
+		}
+  	    while( num > 0 ) {
+		buf[c] = 48 + (num % 10);
+		c++;
+		num = (num -(num % 10))/10;
+		}
+	    buf[c] = 0;
+	    if( neg ) {
+		st[0] = 45;
+		}
+	    if( length > (c + neg) ) {
+		for( int i = 0; i < (length -c -neg); i++) {
+ 		  st[i+neg] = filler;
+		  f++;
+		  }
+		}
+	    for( int i = 0; i < c; i++) { st[i+neg+f] = buf[c-i-1]; }
+	    st[c+neg+f] = 0;
+   	    }
+  tft.println( st );
+}
+*/
+void refresh(int value, byte ms_delay)
+{
+  static float ltx = 0;    // Saved x coord of bottom of needle
+  static uint16_t osx = 160, osy = 160; // Saved x & y coords0
+  static int old_analog =  -999; // Value last displayed
+
+  //if (value < -10) value = -10; // Limit value to emulate needle end stops
+  //if (value > 110) value = 110;
+
+  // Move the needle util new value reached
+  //while (!(value == old_analog)) {
+   // if (old_analog < value) old_analog++;
+    //else old_analog--;
+    
+    //if (ms_delay == 0) old_analog = value; // Update immediately id delay is 0
+    
+    float sdeg = map(old_analog, -10, 110, -150, -30); // Map value to angle 
+    // Calcualte tip of needle coords
+    float sx = cos(sdeg * 0.0174532925);
+    float sy = sin(sdeg * 0.0174532925);
+
+    // Calculate x delta of needle start (does not start at pivot point)
+    float tx = tan((sdeg+90) * 0.0174532925);
+    
+    // Erase old needle image
+    //tft.drawLine(160 + (27 * ltx) - 1, 187 - 27, osx - 1, osy, WHITE);
+    //tft.drawLine(160 + (27 * ltx), 187 - 27, osx, osy, WHITE);
+    //tft.drawLine(160 + (27 * ltx) + 1, 187 - 27, osx + 1, osy, WHITE);
+    
+    //tft.fillRect( 128, 100, 68, 28, WHITE);
+    //tft.setTextColor(RED);
+    //tft.setTextSize(4);  
+    //tft.setCursor(128, 100);  printNumI( old_analog, 3, '.');
+    
+    // Store new needle end coords for next erase
+    ltx = tx;
+    osx = (sx * 130) + 160;
+    osy = (sy * 130) + 187;
+    
+    // Draw the needle in the new postion, magenta makes needle a bit bolder
+    // draws 3 lines to thicken needle
+    tft.drawLine(160 + (27 * ltx) - 1, 187 - 27, osx - 1, osy, RED);
+    tft.drawLine(160 + (27 * ltx), 187 - 27, osx, osy, MAGENTA);
+    tft.drawLine(160 + (27 * ltx) + 1, 187 - 27, osx + 1, osy, RED);
+    //old_analog=value;
+    // Slow needle down slightly as it approaches new postion
+    //if (abs(old_analog - value) < 10) ms_delay += ms_delay / 5;
+    
+    // Wait before next update
+    //delay(ms_delay);
+  //}
+}
+
+void analogMeter()
+{
+  const  char labels[6][4] = {"  0", " 25", " 50", " 75", "100", "%DC"};
+  // Meter outline
+  tft.fillRect(0, 0, 319, 168, LIGHTGREY);
+  tft.fillRect(5, 3, 309, 162, WHITE);  
+  tft.setTextColor(BLACK);  // Text colour
+  
+  // Draw ticks every 5 degrees from -50 to +50 degrees (100 deg. FSD swing)
+  for( int i = -50; i < 51; i += 5) {
+    // Long scale tick length
+    int tl = 20;   
+    // Coodinates of tick to draw
+    float sx = cos((i - 90) * 0.0174532925);
+    float sy = sin((i - 90) * 0.0174532925);
+    uint16_t x0 = sx * (133 + tl) + 160;
+    uint16_t y0 = sy * (133 + tl) + 187;
+    uint16_t x1 = sx * 133 + 160;
+    uint16_t y1 = sy * 133 + 187;
+    
+    // Coordinates of next tick for zone fill
+    float sx2 = cos((i + 5 - 90) * 0.0174532925);
+    float sy2 = sin((i + 5 - 90) * 0.0174532925);
+    int x2 = sx2 * (133 + tl) + 160;
+    int y2 = sy2 * (133 + tl) + 187;
+    int x3 = sx2 * 133 + 160;
+    int y3 = sy2 * 133 + 187;
+
+    // Draw scale arc, don't draw the last part
+    if (i < 50) tft.drawLine(x3, y3, x1, y1, BLACK);
+
+    // Yellow zone limits
+    if((i >= -50) && (i < 0)) {
+      tft.fillTriangle(x0, y0, x1, y1, x2, y2, YELLOW);
+      tft.fillTriangle(x1, y1, x2, y2, x3, y3, YELLOW);
+      }
+
+    // Green zone limits
+    if((i >= 0) && (i < 25)) {
+      tft.fillTriangle(x0, y0, x1, y1, x2, y2, GREEN);
+      tft.fillTriangle(x1, y1, x2, y2, x3, y3, GREEN);
+      }
+
+    // Orange zone limits
+    if((i >= 25) && (i < 50)) {
+      tft.fillTriangle(x0, y0, x1, y1, x2, y2, ORANGE);
+      tft.fillTriangle(x1, y1, x2, y2, x3, y3, ORANGE);
+      }
+    
+    // Short scale tick length
+    if (i % 25 != 0) {
+      tl = 11; 
+      // Recalculate coords incase tick lenght changed
+      x0 = sx * (133 + tl) + 160;
+      y0 = sy * (133 + tl) + 187;
+      }
+    // Draw tick
+    tft.drawLine(x0, y0, x1, y1, BLACK);
+    
+    // Check if labels should be drawn, with position tweaks
+    if (i % 25 == 0) {
+      // Calculate label positions
+      x0 = sx * (133 + tl + 10) + 160 -18; //corr
+      y0 = sy * (133 + tl + 10) + 187;
+      int labp = (i / 25) + 2;
+      switch (labp) {
+        case 0: tft.setCursor( x0, y0-16); break;
+        case 1: tft.setCursor( x0, y0-12); break;
+        case 2: tft.setCursor( x0, y0 -8); break;
+        case 3: tft.setCursor( x0, y0-12); break;
+        case 4: tft.setCursor( x0, y0-16); break;
+      }
+    tft.setTextColor(BLACK);  tft.setTextSize(2);
+    tft.println(labels[labp]);
+    }
+  }  
+  //tft.setCursor( 270, 140);
+  //tft.println(labels[5]);
+  
+  //refresh(0,0); // Put meter needle at 0
+}
+/*------------------------------------------------------*/
 void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg)
 {
     int16_t x1, y1;
@@ -139,6 +319,10 @@ long readVcc() {
 int i=0;
 int tw;
 int th;
+int prevx=0;
+int prevy=0;
+int x=0;
+int y=0; 
 void setup(void) {
     //uart.begin(74880);
     uartBegin(); 
@@ -165,7 +349,7 @@ void setup(void) {
 i=1;
 }
 
-
+byte speed = 0;
 char cstr[80];
 //char cstrp[16];
 String inString="";
@@ -217,7 +401,20 @@ case '6':
     g.toCharArray(cstr, g.length());
     tft.fillRect(1,119, 398, 22, BLACK);
     showmsgXY(2, 139, 1,&FreeSans12pt7b,GREEN, cstr);
-  break;            
+  break;
+case '0':
+    g=inString.substring(2,80);
+    speed=g.toInt();
+    
+    analogMeter();
+    refresh(speed,0);
+
+    //tft.writeLine(199,239,prevx, prevy,  BLACK);
+    //tft.writeLine(199, 239, x, y, BLUE);
+    //prevx=x;
+    //prevy=y;
+
+  break;             
 default:
   break;
 }
