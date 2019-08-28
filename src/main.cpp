@@ -257,7 +257,7 @@ void setup(void) {
 i=1;
 }
 
-byte speed = 0;
+int speed = 0;
 char cstr[80];
 //char cstrp[16];
 String inString="";
@@ -314,7 +314,7 @@ case '0':
     g=inString.substring(2,80);
     speed=g.toInt();
     
-    //analogMeter();
+    analogMeter();
     refresh(speed,0);
 
     //tft.writeLine(199,239,prevx, prevy,  BLACK);
@@ -322,7 +322,39 @@ case '0':
     //prevx=x;
     //prevy=y;
 
-  break;             
+  break;
+case '9':
+    g=inString.substring(2,80);
+    speed=g.toInt();
+    speed=0;
+    tft.fillScreen(BLACK);
+    tft.setFont();
+    tft.setTextSize(2);
+    while(true){
+    float al=(270-speed)*PI/180;    
+    int xc=199;
+    int yc=160;
+    int r=60;
+    int dx=r*sin(al);
+    int dy=r*cos(al);
+    
+    tft.writeLine(xc-1,yc,xc+prevx-1, yc+prevy,  BLACK);
+    tft.writeLine(xc+1,yc,xc+dx+1, yc+dy,  RED);
+
+    tft.writeLine(xc,yc,xc+prevx, yc+prevy,  BLACK);
+    tft.writeLine(xc,yc,xc+dx, yc+dy,  MAGENTA);
+
+    tft.writeLine(xc+1,yc,xc+prevx+1, yc+prevy,  BLACK);
+    tft.writeLine(xc-1,yc,xc+dx-1, yc+dy,  RED);
+    
+    
+    speed++;
+    prevx=dx;
+    prevy=dy;
+
+    delay(50);
+    }
+  break;                     
 default:
   break;
 }
