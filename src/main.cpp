@@ -335,7 +335,7 @@ case '9':
     float al=(270-speed)*PI/180;    
     int yc=(tft.height() / 2)-1;//199
     int xc=(tft.width() / 2)-1;//160;
-    int r=60;
+    int r=80;
     int dx=r*sin(al);
     int dy=r*cos(al);
     
