@@ -230,7 +230,8 @@ int th;
 int prevx=0;
 int prevy=0;
 int x=0;
-int y=0; 
+int y=0;
+int step=1; 
 void setup(void) {
     //uart.begin(74880);
     uartBegin(); 
@@ -332,8 +333,8 @@ case '9':
     tft.setTextSize(2);
     while(true){
     float al=(270-speed)*PI/180;    
-    int xc=199;
-    int yc=160;
+    int yc=(tft.height() / 2)-1;//199
+    int xc=(tft.width() / 2)-1;//160;
     int r=60;
     int dx=r*sin(al);
     int dy=r*cos(al);
@@ -347,14 +348,25 @@ case '9':
     tft.writeLine(xc+1,yc,xc+prevx+1, yc+prevy,  BLACK);
     tft.writeLine(xc-1,yc,xc+dx-1, yc+dy,  RED);
     
-    
-    speed++;
+    step=10;
+    speed+=step;
     prevx=dx;
     prevy=dy;
-
+    if (uartAvailable()) {
+      tft.writeLine(xc-1,yc,xc+prevx-1, yc+prevy,  BLACK);
+      tft.writeLine(xc,yc,xc+prevx, yc+prevy,  BLACK);
+      tft.writeLine(xc+1,yc,xc+prevx+1, yc+prevy,  BLACK);
+      break;
+    }
     delay(50);
     }
-  break;                     
+  break; 
+case '+':
+ step+=2;
+ break;
+case '-':
+ step-=2;
+ break;                       
 default:
   break;
 }
