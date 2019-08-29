@@ -324,6 +324,14 @@ case '0':
     //prevy=y;
 
   break;
+case '8':
+    g=inString.substring(2,80);
+    speed=g.toInt();
+    tft.fillScreen(BLACK);
+    tft.fillRect(0, 0, 102, 20, LIGHTGREY);
+    tft.fillRect(1, 1, speed, 18, RED);
+
+  break;
 case '9':
     g=inString.substring(2,80);
     speed=g.toInt();
