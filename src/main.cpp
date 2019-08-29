@@ -212,6 +212,17 @@ void analogMeter()
   }  
 }
 /*------------------------------------------------------*/
+
+void showbar(int speed){
+    int col=GREEN;
+    if (speed<80) col=YELLOW;
+    if (speed<50) col=ORANGE;
+    if (speed<30) col=RED;
+    if (speed<0) return;
+    tft.fillRect(tft.width()-103, 1, 102, 21, DARKGREY);
+    tft.fillRect(tft.width()-102, 2, speed, 19, col);
+}
+
 void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg)
 {
     int16_t x1, y1;
@@ -233,9 +244,7 @@ int x=0;
 int y=0;
 int step=1; 
 void setup(void) {
-    //uart.begin(74880);
-    uartBegin(); 
-    //    tft.reset();                 //hardware reset
+    uartBegin(9600); 
     uint16_t ID = tft.readID(); //
     uartPrintln(ID, HEX);
     tft.begin(ID);  // my is 9327
@@ -244,38 +253,32 @@ void setup(void) {
     tft.fillScreen(BLACK);
     tft.setFont();
     tft.setTextSize(2);
-    //yc=(tft.height() / 2)-1;//199
-    //xc=(tft.width() / 2)-1;//160;
     i=0;
     
-// tw = tft.width();
-// th = tft.height();
  uartPrintln(tw);
  uartPrintln(th);
- tft.drawFastHLine(0,0,399,RED) ;
- tft.drawFastHLine(0,239,399,RED) ;
- tft.drawFastVLine(0,0,239,RED) ;
- tft.drawFastVLine(399,0,239,RED) ;
+ tft.drawFastHLine(0,0,tft.width()-1,GREEN) ;// ok
+ tft.drawFastHLine(0,tft.height()-1,tft.width()-1,GREEN) ;// ok
+ tft.drawFastVLine(0,0,tft.height()-1,GREEN) ;// ok
+ tft.drawFastVLine(tft.width()-1,0,tft.width()-1,GREEN) ;// ok
 /**/
 i=1;
 }
 
 int speed = 0;
 char cstr[80];
-//char cstrp[16];
 String inString="";
 String g="";
-void loop(void) {
-    
-  
+
+
+
+void loop(void) {  
 
   while (uartAvailable() > 0) {
-  char inChar = uartRead();
+    char inChar = uartRead();
     inString += inChar;
-
-  if (inChar == '\n') {
-    //uartPrintln(inString);
-    switch (inString.charAt(0))
+    if (inChar == '\n') {
+  switch (inString.charAt(0))
 {
 case '1':
     g=inString.substring(2,16);
@@ -316,40 +319,26 @@ case '6':
 case '0':
     g=inString.substring(2,80);
     speed=g.toInt();
-    
     analogMeter();
     refresh(speed,0);
-
-    //tft.writeLine(199,239,prevx, prevy,  BLACK);
-    //tft.writeLine(199, 239, x, y, BLUE);
-    //prevx=x;
-    //prevy=y;
-
   break;
 case '8':
     g=inString.substring(2,80);
     speed=g.toInt();
-    tft.fillScreen(BLACK);
-    int col=GREEN;
-    if (speed<80) col=YELLOW;
-    if (speed<50) col=ORANGE;
-    if (speed<30) col=RED;
-    tft.fillRect(tft.width()-103, 0, 102, 20, LIGHTGREY);
-    tft.fillRect(tft.width()-102, 1, speed, 18, col);
-
+    showbar(speed);
   break;
 case '9':
-    uartPrintln(g);
+    //uartPrintln(g);
     g=inString.substring(2,80);
     speed=g.toInt();
     speed=0;
-    tft.fillScreen(BLACK);
-    tft.setFont();
-    tft.setTextSize(2);
+    //tft.fillScreen(BLACK);
+    //tft.setFont();
+    //tft.setTextSize(2);
     while(true){
     float al=(270-speed)*PI/180;    
-    int yc=(tft.height() / 2)-1;//199
-    int xc=(tft.width() / 2)-1;//160;
+    int yc=(tft.height() / 2)-1;
+    int xc=(tft.width() / 2)-1;
     int r=80;
     int dx=r*sin(al);
     int dy=r*cos(al);
@@ -363,7 +352,7 @@ case '9':
     tft.writeLine(xc+1,yc,xc+prevx+1, yc+prevy,  BLACK);
     tft.writeLine(xc-1,yc,xc+dx-1, yc+dy,  RED);
     
-    step=10;
+    step=2;
     speed+=step;
     prevx=dx;
     prevy=dy;
@@ -373,7 +362,8 @@ case '9':
       tft.writeLine(xc+1,yc,xc+prevx+1, yc+prevy,  BLACK);
       break;
     }
-    delay(50);
+    delay(10);
+    showbar(speed %100);
     }
   break; 
 case '+':
@@ -386,7 +376,6 @@ default:
   break;
 }
  inString = "";
- //uartPrintln(readVcc());
 }
 }
 
