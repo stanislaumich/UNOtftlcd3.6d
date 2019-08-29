@@ -113,9 +113,9 @@ void refresh(int value, byte ms_delay)
     osx = (sx * 130) + 160;
     osy = (sy * 130) + 187;
 
-    tft.drawLine(160 + (27 * ltx) - 1, 187 - 27, osx - 1, osy, BLACK);
-    tft.drawLine(160 + (27 * ltx), 187 - 27, osx, osy, BLACK);
-    tft.drawLine(160 + (27 * ltx) + 1, 187 - 27, osx + 1, osy, BLACK);
+    //tft.drawLine(160 + (27 * ltx) - 1, 187 - 27, osx - 1, osy, BLACK);
+    //tft.drawLine(160 + (27 * ltx), 187 - 27, osx, osy, BLACK);
+    //tft.drawLine(160 + (27 * ltx) + 1, 187 - 27, osx + 1, osy, BLACK);
 
      sdeg = map(value, -10, 110, -150, -30); 
 
@@ -244,6 +244,8 @@ void setup(void) {
     tft.fillScreen(BLACK);
     tft.setFont();
     tft.setTextSize(2);
+    //yc=(tft.height() / 2)-1;//199
+    //xc=(tft.width() / 2)-1;//160;
     i=0;
     
 // tw = tft.width();
@@ -328,11 +330,16 @@ case '8':
     g=inString.substring(2,80);
     speed=g.toInt();
     tft.fillScreen(BLACK);
-    tft.fillRect(0, 0, 102, 20, LIGHTGREY);
-    tft.fillRect(1, 1, speed, 18, RED);
+    int col=GREEN;
+    if (speed<80) col=YELLOW;
+    if (speed<50) col=ORANGE;
+    if (speed<30) col=RED;
+    tft.fillRect(tft.width()-103, 0, 102, 20, LIGHTGREY);
+    tft.fillRect(tft.width()-102, 1, speed, 18, col);
 
   break;
 case '9':
+    uartPrintln(g);
     g=inString.substring(2,80);
     speed=g.toInt();
     speed=0;
