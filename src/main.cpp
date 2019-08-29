@@ -142,6 +142,7 @@ void analogMeter()
   tft.fillRect(5, 3, 309, 162, WHITE);  
   tft.setTextColor(BLACK);  // Text colour
   
+  
   // Draw ticks every 5 degrees from -50 to +50 degrees (100 deg. FSD swing)
   for( int i = -50; i < 51; i += 5) {
     // Long scale tick length
@@ -206,7 +207,9 @@ void analogMeter()
         case 3: tft.setCursor( x0, y0-12); break;
         case 4: tft.setCursor( x0, y0-16); break;
       }
-    tft.setTextColor(BLACK);  tft.setTextSize(2);
+    tft.setFont();  
+    tft.setTextColor(BLACK);  
+    tft.setTextSize(2);
     tft.println(labels[labp]);
     }
   }  
@@ -363,7 +366,8 @@ case '9':
       break;
     }
     delay(10);
-    showbar(speed %100);
+    showbar(abs(speed %100));
+    //if (speed>32767) speed=0;
     }
   break; 
 case '+':
