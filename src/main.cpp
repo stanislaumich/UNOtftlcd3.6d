@@ -59,8 +59,18 @@ MCUFRIEND_kbv tft;
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
-//void setup(void);
-//void loop(void);
+int i=0;
+int tw;
+int th;
+int prevx=0;
+int prevy=0;
+int x=0;
+int y=0;
+int step=1;
+int speed = 0;
+char cstr[80];
+String inString="";
+String g="";
 /*
 String utf8rus(String source)
 {
@@ -238,20 +248,6 @@ void showmsgXY(int x, int y, int sz, const GFXfont *f, int col,  const char *msg
     tft.print(msg);
 }
 
-int i=0;
-int tw;
-int th;
-int prevx=0;
-int prevy=0;
-int x=0;
-int y=0;
-int step=1;
-int speed = 0;
-char cstr[80];
-String inString="";
-String g=""; 
-
-
 void setup(void) 
 {
     uartBegin(9600); 
@@ -341,6 +337,7 @@ case '7':
         delay(5);
         tft.fillRect(r*wb,0,wb-1,mh,BLACK);
         tft.fillRect(r*wb,mh-th,wb-1,mh,GREEN);
+        showmsgXY(1, 20, 1, &FreeSans9pt7b,YELLOW,  char(th))
         //delay(50);
       }
       //delay(1000);
