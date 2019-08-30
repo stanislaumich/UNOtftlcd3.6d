@@ -245,8 +245,15 @@ int prevx=0;
 int prevy=0;
 int x=0;
 int y=0;
-int step=1; 
-void setup(void) {
+int step=1;
+int speed = 0;
+char cstr[80];
+String inString="";
+String g=""; 
+
+
+void setup(void) 
+{
     uartBegin(9600); 
     uint16_t ID = tft.readID(); //
     uartPrintln(ID, HEX);
@@ -264,18 +271,11 @@ void setup(void) {
  tft.drawFastHLine(0,tft.height()-1,tft.width()-1,GREEN) ;// ok
  tft.drawFastVLine(0,0,tft.height()-1,GREEN) ;// ok
  tft.drawFastVLine(tft.width()-1,0,tft.width()-1,GREEN) ;// ok
-/**/
-i=1;
+ i=1;
 }
 
-int speed = 0;
-char cstr[80];
-String inString="";
-String g="";
-
-
-
-void loop(void) {  
+void loop(void) 
+{  
 
   while (uartAvailable() > 0) {
     char inChar = uartRead();
@@ -283,6 +283,12 @@ void loop(void) {
     if (inChar == '\n') {
   switch (inString.charAt(0))
 {
+case '0':
+    g=inString.substring(2,80);
+    speed=g.toInt();
+    analogMeter();
+    refresh(speed,0);
+  break;  
 case '1':
     g=inString.substring(2,16);
     g.toCharArray(cstr, g.length());
@@ -319,11 +325,27 @@ case '6':
     tft.fillRect(1,119, 398, 22, BLACK);
     showmsgXY(2, 139, 1,&FreeSans12pt7b,GREEN, cstr);
   break;
-case '0':
+case '7':
     g=inString.substring(2,80);
-    speed=g.toInt();
-    analogMeter();
-    refresh(speed,0);
+    int tn=g.toInt();// num of bars
+    tft.fillScreen(BLACK);
+    while(true){
+      int mw=tft.width();//
+      int mh=tft.height(); 
+      int wb=mw/tn;// bar width
+      int th;
+      //tft.fillScreen(BLACK);
+      for(int r=0;r<tn;r++){
+        th=random(150);
+        tft.fillRect(r*wb,0,wb-1,mh,RED);
+        delay(5);
+        tft.fillRect(r*wb,0,wb-1,mh,BLACK);
+        tft.fillRect(r*wb,mh-th,wb-1,mh,GREEN);
+        //delay(50);
+      }
+      //delay(1000);
+      if (uartAvailable()) break;
+    }
   break;
 case '8':
     g=inString.substring(2,80);
@@ -331,13 +353,7 @@ case '8':
     showbar(speed);
   break;
 case '9':
-    //uartPrintln(g);
-    g=inString.substring(2,80);
-    speed=g.toInt();
     speed=0;
-    //tft.fillScreen(BLACK);
-    //tft.setFont();
-    //tft.setTextSize(2);
     while(true){
     float al=(270-speed)*PI/180;    
     int yc=(tft.height() / 2)-1;
@@ -367,7 +383,7 @@ case '9':
     }
     delay(10);
     showbar(abs(speed %100));
-    //if (speed>32767) speed=0;
+    if (speed>32767) speed=0;
     }
   break; 
 case '+':
@@ -382,7 +398,6 @@ default:
  inString = "";
 }
 }
-
 //LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);  
 }
 
