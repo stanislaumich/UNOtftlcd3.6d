@@ -402,7 +402,7 @@ default:
 //LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
 //g=inString.substring(2,80);
 //    int atn=g.toInt();// num of bars
-int atn=60;
+int atn=48;
     tft.fillScreen(BLACK);
     while(true){
       //int mw=;//
@@ -410,18 +410,23 @@ int atn=60;
       int wb=tft.width()/atn;// bar width
       int th;
       //tft.fillScreen(BLACK);
+      int tprev=100;
       for(int r=0;r<atn;r++){
         th=random(150);
-        tft.fillRect(r*wb,0,1,mh,RED);
-        delay(5);
+        //tft.fillRect(r*wb,0,1,mh,RED);
+        delay(20);
         tft.fillRect(r*wb,0,wb-1,mh,BLACK);
+        tft.fillRect(r*wb,0,wb-1,mh-th-1,RED);
+        tft.fillRect((r-1)*wb,0,wb-1,mh-tprev,BLACK);
         tft.fillRect(r*wb,mh-th,wb-1,mh,GREEN);
         //int num = 1234;
         char acstr[16];
-        itoa(r, acstr, 10);
+        itoa(th, acstr, 10);
         tft.fillRect(0,0,50,30,BLACK);
-        //showmsgXY(1, 20, 1, &FreeSans9pt7b,YELLOW,  acstr);
-        //delay(50);
+        showmsgXY(1, 20, 1, &FreeSans9pt7b,YELLOW,  acstr);
+        delay(250);
+        tprev=th;
+        if (r==atn-1){tft.fillRect((r)*wb,0,wb-1,mh-th,BLACK);}
       }
       //delay(1000);
       if (uartAvailable()) break;
