@@ -321,29 +321,33 @@ case '6':
     tft.fillRect(1,119, 398, 22, BLACK);
     showmsgXY(2, 139, 1,&FreeSans12pt7b,GREEN, cstr);
   break;
-case '7':
+case '7':{
     g=inString.substring(2,80);
-    int tn=g.toInt();// num of bars
+    int atn=g.toInt();// num of bars
     tft.fillScreen(BLACK);
     while(true){
-      int mw=tft.width();//
+      //int mw=;//
       int mh=tft.height(); 
-      int wb=mw/tn;// bar width
+      int wb=tft.width()/atn;// bar width
       int th;
       //tft.fillScreen(BLACK);
-      for(int r=0;r<tn;r++){
+      for(int r=0;r<atn;r++){
         th=random(150);
-        tft.fillRect(r*wb,0,wb-1,mh,RED);
+        tft.fillRect(r*wb,0,1,mh,RED);
         delay(5);
         tft.fillRect(r*wb,0,wb-1,mh,BLACK);
         tft.fillRect(r*wb,mh-th,wb-1,mh,GREEN);
-        showmsgXY(1, 20, 1, &FreeSans9pt7b,YELLOW,  char(th))
+        //int num = 1234;
+        char acstr[16];
+        itoa(r, acstr, 10);
+        tft.fillRect(0,0,50,30,BLACK);
+        showmsgXY(1, 20, 1, &FreeSans9pt7b,YELLOW,  acstr);
         //delay(50);
       }
       //delay(1000);
       if (uartAvailable()) break;
     }
-  break;
+  break;}
 case '8':
     g=inString.substring(2,80);
     speed=g.toInt();
@@ -395,6 +399,32 @@ default:
  inString = "";
 }
 }
-//LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);  
+//LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+//g=inString.substring(2,80);
+//    int atn=g.toInt();// num of bars
+int atn=60;
+    tft.fillScreen(BLACK);
+    while(true){
+      //int mw=;//
+      int mh=tft.height(); 
+      int wb=tft.width()/atn;// bar width
+      int th;
+      //tft.fillScreen(BLACK);
+      for(int r=0;r<atn;r++){
+        th=random(150);
+        tft.fillRect(r*wb,0,1,mh,RED);
+        delay(5);
+        tft.fillRect(r*wb,0,wb-1,mh,BLACK);
+        tft.fillRect(r*wb,mh-th,wb-1,mh,GREEN);
+        //int num = 1234;
+        char acstr[16];
+        itoa(r, acstr, 10);
+        tft.fillRect(0,0,50,30,BLACK);
+        //showmsgXY(1, 20, 1, &FreeSans9pt7b,YELLOW,  acstr);
+        //delay(50);
+      }
+      //delay(1000);
+      if (uartAvailable()) break;
+    }  
 }
 
